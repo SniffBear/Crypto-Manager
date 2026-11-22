@@ -57,6 +57,11 @@ async def networks(state=Depends(require_session)):
     return ChainService(state).networks()
 
 
+@router.get("/portfolio")
+async def chain_portfolio(state=Depends(require_session)):
+    return ChainService(state).portfolio_summary()
+
+
 @router.get("/{network_id}")
 async def network_details(network_id: str, state=Depends(require_session)):
     try:
