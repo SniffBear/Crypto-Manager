@@ -46,6 +46,7 @@ import type {
   ChainNetwork,
   ChainAddressValidation,
   ChainSyncResult,
+  ChainPortfolioSummary,
   WalletCreateRequest,
   WalletImportSecretRequest,
   WalletSecretExport,
@@ -424,6 +425,7 @@ export const api = {
 
   chains: {
     list: (options?: RequestOptions) => get<ChainNetwork[]>('/chains', options),
+    portfolio: (options?: RequestOptions) => get<ChainPortfolioSummary>('/chains/portfolio', options),
     get: (networkId: string, options?: RequestOptions) =>
       get<ChainNetwork & { provider: Record<string, unknown> }>(`/chains/${encodeURIComponent(networkId)}`, options),
     validateAddress: (networkId: string, address: string) =>
