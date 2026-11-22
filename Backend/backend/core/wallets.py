@@ -123,6 +123,9 @@ class WalletService:
             raise ValueError("64-byte secret key has an invalid public-key suffix")
         wallet = {
             "id": secrets.token_hex(8),
+            "chain": "solana",
+            "network": "mainnet-beta",
+            "network_id": "solana-mainnet-beta",
             "address": b58encode(public),
             "secret_key_b58": b58encode(secret64),
             "secret_key_b64": base64.b64encode(secret64).decode(),
