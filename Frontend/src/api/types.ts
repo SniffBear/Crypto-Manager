@@ -37,6 +37,12 @@ export interface AuthResult {
 /* ────────────────────────────  WALLETS  ──────────────────────────── */
 export interface Wallet {
   id: string;
+  chain?: string;
+  network?: string;
+  network_id?: string;
+  address_validation?: { valid: boolean; format: string; reason?: string | null };
+  chain_sync?: Record<string, unknown>;
+  chain_sync_status?: string;
   address: string;
   label: string;
   group: string | null;
@@ -68,6 +74,43 @@ export interface WalletImportWatchOnlyRequest {
   address: string;
   label: string;
   group?: string | null;
+  chain?: string;
+  network?: string;
+}
+
+export interface ChainNetwork {
+  id: string;
+  chain: string;
+  family: string;
+  name: string;
+  network: string;
+  symbol: string;
+  decimals: number;
+  chain_id?: number | null;
+  provider_kind: string;
+  default_endpoint?: string | null;
+  status: 'IMPLEMENTED' | 'PARTIAL' | 'UNAVAILABLE' | string;
+  capabilities: string[];
+}
+
+export interface ChainAddressValidation {
+  valid: boolean;
+  network_id: string;
+  format: string;
+  reason?: string | null;
+}
+
+export interface ChainSyncResult {
+  network_id: string;
+  chain: string;
+  status: string;
+  source: string;
+  native_asset: string;
+  balance: string;
+  balance_raw?: string;
+  decimals: number;
+  synced_at: ISODateString;
+  [key: string]: unknown;
 }
 
 /* ────────────────────────────  ASSETS  ──────────────────────────── */
