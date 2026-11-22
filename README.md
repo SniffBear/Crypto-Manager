@@ -106,13 +106,13 @@ See `SECURITY.md`, `FEATURE_STATUS.md`, `CHANGELOG.md`, `ARCHIVE_SOURCES.md`, an
 
 ### Address book and reconciliation
 
-The encrypted vault now includes a network-aware address book with trusted-recipient flags and a configurable new-recipient confirmation policy. Solana transfer execution enforces the policy. A read-only reconciliation service refreshes Solana balances and activity, stores snapshots, and reports balance changes and newly detected transactions. Current reconciliation coverage is Solana-only because the existing RPC sync implementation is Solana-specific; other listed currencies are not represented as supported until native chain adapters are implemented.
+The encrypted vault now includes a network-aware address book with trusted-recipient flags and a configurable new-recipient confirmation policy. Solana transfer execution enforces the policy. A read-only reconciliation service refreshes Solana balances and activity, stores snapshots, and reports balance changes and newly detected transactions. Portfolio reconciliation retains the existing Solana path. A separate multi-chain chain registry and read-only wallet adapter layer now covers EVM native balances, Bitcoin Esplora, configured Blockbook UTXO endpoints, Ergo, Kaspa, and local Monero/Zano wallet RPCs. See FEATURE_STATUS.md for network-specific limits.
 
 
 ## Feature boundaries and roadmap
 
 The feature-suite UI is available at `/s/feature-suite`. It exposes wallet groups, transaction policy, scheduled transfer intents, draft batches, FIFO accounting, payment requests, local assistant, limit-order alerts, explorer links, encrypted metadata sync, automatic backups, recovery checks, security alerts, sessions, portfolio analytics, network capability status, and export utilities. Scheduled items and limit orders do not automatically move funds. Batch items require separate individual simulation and authorization.
 
-Only Solana currently has a native wallet read/sync adapter in this codebase. Bitcoin, Litecoin, Dogecoin, Monero, Zano, Ethereum Classic, Ravencoin, Ergo and Kaspa are not implemented as native wallet networks. Do not send assets to an address expecting Nexus to manage them until a network adapter is implemented and independently tested. Hardware-wallet integration is intentionally excluded. Cryptocurrency mining is not part of this application.
+Solana remains the only network with key generation/import and transaction construction in this codebase. Additional EVM, UTXO, Ergo, Kaspa, Monero and Zano adapters are watch-only/read-only and require configured providers or local wallet RPCs as documented in FEATURE_STATUS.md. No non-Solana signing or broadcasting is implemented. Do not use these read-only integrations as a deposit or custody guarantee. Hardware-wallet integration is intentionally excluded. Cryptocurrency mining is not part of this application.
 
 See `FEATURE_STATUS.md` for a detailed feature matrix and the distinction between implemented, partial and not-yet-implemented functionality.
