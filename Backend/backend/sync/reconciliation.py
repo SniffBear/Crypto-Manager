@@ -47,7 +47,7 @@ class PortfolioReconciliationService:
         activity_result = await sync.sync_activity()
 
         data = self.state.vault.data()
-        wallets = data.get("wallets", [])
+        wallets = [wallet for wallet in data.get("wallets", []) if (wallet.get("chain") or "solana") == "solana"]
         previous = data.setdefault("reconciliation", {})
         previous_wallets = previous.setdefault("wallets", {})
         snapshots = previous.setdefault("snapshots", [])
