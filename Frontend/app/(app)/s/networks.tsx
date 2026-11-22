@@ -323,6 +323,9 @@ export default function NetworksScreen() {
                       <Text variant="label">{wallet.label}</Text>
                       <Text variant="monoSmall" tone="muted">{wallet.address}</Text>
                       <Text variant="caption" tone="muted">{wallet.chain_sync_status ?? 'Not synchronized'}</Text>
+                      {wallet.chain_sync?.balance != null ? (
+                        <Text variant="monoSmall">{String(wallet.chain_sync.balance)} {String(wallet.chain_sync.native_asset ?? '')}</Text>
+                      ) : null}
                     </Stack>
                     <Button
                       label="Sync"
