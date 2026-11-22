@@ -113,7 +113,14 @@ async def configure_provider(
     }
     state.vault.data().setdefault("chain_providers", {})[network_id] = config
     state.vault.save()
-    return {"network_id": network_id, "configured": True, "base_url": base_url, "credentials_stored": True}
+    parsed = urlparse(base_url)
+    return {
+        "network_id": network_id,
+        "configured": True,
+        "provider_host": parsed.hostname,
+        "provider_port": parsed.port,
+        "credentials_stored": True,
+    }
 
 
 @router.post("/{network_id}/sync")
