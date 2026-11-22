@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from decimal import Decimal
+from urllib.parse import urlparse
 from typing import Any
 
 from .adapters import make_adapter
@@ -23,11 +25,15 @@ class ChainService:
         network = get_network(network_id)
         config = self.provider_config(network_id)
         base_url = config.get("base_url") or network.default_endpoint
+        parsed = urlparse(base_url) if base_url else None
         return {
             "network_id": network_id,
             "provider_kind": network.provider_kind,
             "configured": bool(base_url),
-            "base_url": base_url,
+            # Never return a full endpoint: vendors sometimes place API
+            # credentials in URL paths even when query strings are absent.
+            "provider_host": parsed.hostname if parsed else None,
+            "provider_port": parsed.port if parsed else None,
             "has_api_key": bool(config.get("api_key")),
             "has_basic_auth": bool(config.get("username")),
             "wallet_rpc_address_configured": bool(config.get("wallet_address")),
@@ -148,7 +154,6 @@ class ChainService:
                     "wallet_count": 0,
                     "value_usd": None,
                 })
-                from decimal import Decimal
                 entry["balance"] = format(Decimal(str(entry["balance"])) + Decimal(str(amount)), "f")
                 entry["wallet_count"] += 1
             rows.append({
@@ -190,7 +195,7 @@ class ChainService:
                 "configured": bool(endpoints),
                 "healthy_endpoints": len(healthy),
                 "endpoint_count": len(endpoints),
-                "checked_at": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(),
+                "checked_at": datetime.now(timezone.utc).isoformat(),
             }
         adapter = make_adapter(network, self.provider_config(network_id))
         return await adapter.health()
