@@ -43,6 +43,9 @@ import type {
   SyncResult,
   VaultMetadata,
   Wallet,
+  ChainNetwork,
+  ChainAddressValidation,
+  ChainSyncResult,
   WalletCreateRequest,
   WalletImportSecretRequest,
   WalletSecretExport,
@@ -417,6 +420,28 @@ export const api = {
       amount: number;
       slippage_bps?: number;
     }) => post<SwapSimulationResult>('/execution/swap/simulate', body),
+  },
+
+  chains: {
+    list: (options?: RequestOptions) => get<ChainNetwork[]>('/chains', options),
+    get: (networkId: string, options?: RequestOptions) =>
+      get<ChainNetwork & { provider: Record<string, unknown> }>(`/chains/${encodeURIComponent(networkId)}`, options),
+    validateAddress: (networkId: string, address: string) =>
+      post<ChainAddressValidation>(`/chains/validate-address?network_id=${encodeURIComponent(networkId)}`, { address }),
+    provider: (networkId: string, options?: RequestOptions) =>
+      get<Record<string, unknown>>(`/chains/${encodeURIComponent(networkId)}/provider`, options),
+    configureProvider: (networkId: string, body: {
+      base_url: string;
+      api_key?: string;
+      api_key_header?: string;
+      username?: string;
+      password?: string;
+      wallet_address?: string;
+    }) => put<Record<string, unknown>>(`/chains/${encodeURIComponent(networkId)}/provider`, body),
+    health: (networkId: string, options?: RequestOptions) =>
+      get<Record<string, unknown>>(`/chains/${encodeURIComponent(networkId)}/health`, options),
+    syncWallet: (networkId: string, wallet_id: string) =>
+      post<ChainSyncResult>(`/chains/${encodeURIComponent(networkId)}/sync`, { wallet_id }),
   },
 
   sync: {
