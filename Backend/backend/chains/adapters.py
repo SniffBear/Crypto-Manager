@@ -1,11 +1,8 @@
 from __future__ import annotations
 
-import asyncio
-import base64
 from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Any
-from urllib.parse import urljoin
 
 import httpx
 
@@ -253,14 +250,37 @@ class MoneroWalletRPCAdapter(ReadOnlyAdapter):
         matched = next((item for item in addresses if item.get("address") == expected_address), None)
         if not matched and address_payload.get("address") != expected_address:
             raise AdapterError("Configured Monero wallet RPC does not match the imported wallet address")
-        address_indices = [matched.get("address_index")] if matched and matched.get("address_index") is not None else None
+        address_index = matched.get("address_index") if matched else None
         result = await self.request("POST", "json_rpc", body={
             "jsonrpc": "2.0", "id": "0", "method": "get_balance",
-            "params": {"account_index": account_index, **({"address_indices": address_indices} if address_indices else {})},
+            "params": {"account_index": account_index},
         })
         payload = result.get("result", result)
         raw = int(payload.get("balance", 0))
         unlocked = int(payload.get("unlocked_balance", 0))
+        transfers_result = await self.request("POST", "json_rpc", body={
+            "jsonrpc": "2.0", "id": "0", "method": "get_transfers",
+            "params": {"in": True, "out": True, "pending": True, "failed": True, "pool": True, "account_index": account_index},
+        })
+        transfers_payload = transfers_result.get("result", transfers_result)
+        activity = []
+        for direction in ("in", "out", "pending", "failed", "pool"):
+            for item in transfers_payload.get(direction, [])[:250]:
+                if address_index is not None:
+                    subaddress = item.get("subaddr_index") or {}
+                    if subaddress.get("minor") not in (None, address_index):
+                        continue
+                activity.append({
+                    "txid": item.get("txid"),
+                    "direction": direction,
+                    "amount_atomic": str(item.get("amount", 0)),
+                    "fee_atomic": str(item.get("fee", 0)),
+                    "height": item.get("height"),
+                    "timestamp": item.get("timestamp"),
+                    "confirmations": item.get("confirmations"),
+                    "pending": bool(item.get("pending", direction in {"pending", "pool"})),
+                })
+        activity.sort(key=lambda item: item.get("timestamp") or 0, reverse=True)
         return {
             "network_id": self.network.id,
             "chain": "monero",
@@ -272,8 +292,8 @@ class MoneroWalletRPCAdapter(ReadOnlyAdapter):
             "decimals": 12,
             "balance": _units(raw, 12),
             "unlocked_balance": _units(unlocked, 12),
-            "activity": None,
-            "activity_status": "WALLET_RPC_HISTORY_NOT_IMPORTED",
+            "activity": activity[:250],
+            "activity_status": "SYNCED",
             "synced_at": _now(),
         }
 
@@ -312,7 +332,7 @@ class ZanoWalletRPCAdapter(ReadOnlyAdapter):
             "balance": _units(raw, 12),
             "unlocked_balance": _units(unlocked, 12),
             "activity": None,
-            "activity_status": "WALLET_RPC_HISTORY_NOT_IMPORTED",
+            "activity_status": "NOT_IMPLEMENTED",
             "synced_at": _now(),
         }
 
