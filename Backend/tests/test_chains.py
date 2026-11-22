@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from backend.chains.addresses import validate_address
-from backend.chains.registry import NETWORKS, get_network, list_networks, network_id_for
+from backend.chains.registry import get_network, list_networks, network_id_for
 from backend.core.state import AppState
 from backend.core.vault import VaultManager
 from backend.core.wallets import WalletService
@@ -116,3 +116,82 @@ def test_watch_only_import_rejects_address_for_wrong_network(tmp_path):
         assert "EVM address" in str(exc)
     else:
         raise AssertionError("An address for the wrong network must be rejected")
+
+
+def test_provider_summary_never_returns_secret_url_path(tmp_path):
+    from backend.chains.service import ChainService
+
+    vault = VaultManager(tmp_path / "vault.svault")
+    vault.create("a-very-strong-password")
+    vault.data().setdefault("chain_providers", {})["ethereum-mainnet"] = {
+        "base_url": "https://rpc.example.invalid/v2/private-token",
+        "api_key": "private-token",
+    }
+    summary = ChainService(AppState(vault)).provider_summary("ethereum-mainnet")
+
+    assert summary["provider_host"] == "rpc.example.invalid"
+    assert "base_url" not in summary
+    assert "private-token" not in repr(summary)
+
+
+def test_evm_adapter_reads_native_balance_and_checks_chain_id():
+    import asyncio
+
+    from backend.chains.adapters import EVMReadAdapter
+
+    class FakeEVMAdapter(EVMReadAdapter):
+        def __init__(self, network, chain_id="0x1"):
+            super().__init__(network, {"base_url": "https://rpc.example.invalid"})
+            self.remote_chain_id = chain_id
+
+        async def request(self, method, path="", *, params=None, body=None):
+            rpc_method = body["method"]
+            return {
+                "eth_chainId": self.remote_chain_id,
+                "eth_getBalance": "0xde0b6b3a7640000",
+                "eth_blockNumber": "0x10",
+            }[rpc_method]
+
+    network = get_network("ethereum-mainnet")
+    adapter = FakeEVMAdapter(network)
+    result = asyncio.run(adapter.sync_wallet({
+        "address": "0x52908400098527886e0f7030069857d2e4169ee7",
+        "token_contracts": [],
+    }))
+    assert result["balance"] == "1"
+    assert result["native_asset"] == "ETH"
+    assert result["chain_id"] == 1
+    assert result["block_number"] == 16
+
+    wrong_network = FakeEVMAdapter(network, chain_id="0xa")
+    try:
+        asyncio.run(wrong_network.sync_wallet({
+            "address": "0x52908400098527886e0f7030069857d2e4169ee7",
+        }))
+    except Exception as exc:
+        assert "chain ID mismatch" in str(exc)
+    else:
+        raise AssertionError("The EVM adapter must reject an RPC endpoint for the wrong chain")
+
+
+def test_esplora_adapter_converts_satoshi_balances_without_float_math():
+    import asyncio
+
+    from backend.chains.adapters import EsploraReadAdapter
+
+    class FakeEsploraAdapter(EsploraReadAdapter):
+        async def request(self, method, path="", *, params=None, body=None):
+            if path.endswith("/txs"):
+                return [{"txid": "sample-tx", "status": {"confirmed": True, "block_height": 100, "block_time": 123}}]
+            return {
+                "chain_stats": {"funded_txo_sum": 150000000, "spent_txo_sum": 25000000},
+                "mempool_stats": {"funded_txo_sum": 1000, "spent_txo_sum": 500},
+            }
+
+    adapter = FakeEsploraAdapter(get_network("bitcoin-mainnet"), {"base_url": "https://explorer.example.invalid/api"})
+    result = asyncio.run(adapter.sync_wallet({"address": "1BoatSLRHtKNngkdXEeobR76b53LETtpyT"}))
+
+    assert result["balance_raw"] == "125000000"
+    assert result["balance"] == "1.25"
+    assert result["unconfirmed_delta_raw"] == "500"
+    assert result["activity"][0]["txid"] == "sample-tx"
