@@ -64,7 +64,7 @@ _NETWORKS = [
     Network("monero-mainnet", "monero", "privacy_rpc", "Monero", "mainnet", "XMR", 12, provider_kind="monero_wallet_rpc", status="PARTIAL", capabilities=("watch_only", "address_validation", "native_balance", "activity")),
     Network("monero-testnet", "monero", "privacy_rpc", "Monero Testnet", "testnet", "XMR", 12, provider_kind="monero_wallet_rpc", status="PARTIAL", capabilities=("watch_only", "address_validation", "native_balance", "activity")),
     Network("monero-stagenet", "monero", "privacy_rpc", "Monero Stagenet", "stagenet", "XMR", 12, provider_kind="monero_wallet_rpc", status="PARTIAL", capabilities=("watch_only", "address_validation", "native_balance", "activity")),
-    Network("zano-mainnet", "zano", "privacy_rpc", "Zano", "mainnet", "ZANO", 12, provider_kind="zano_wallet_rpc", status="PARTIAL", capabilities=("watch_only", "native_balance", "activity")),
+    Network("zano-mainnet", "zano", "privacy_rpc", "Zano", "mainnet", "ZANO", 12, provider_kind="zano_wallet_rpc", status="PARTIAL", capabilities=("watch_only", "address_validation", "native_balance", "activity")),
     Network("zano-testnet", "zano", "privacy_rpc", "Zano Testnet", "testnet", "tZANO", 12, provider_kind="zano_wallet_rpc", status="PARTIAL", capabilities=("watch_only", "native_balance", "activity")),
 ]
 
