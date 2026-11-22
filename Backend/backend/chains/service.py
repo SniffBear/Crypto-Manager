@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Any
 
-from .adapters import AdapterError, make_adapter
+from .adapters import make_adapter
 from .registry import get_network, list_networks, network_id_for
 from .addresses import validate_address
 
@@ -72,7 +73,7 @@ class ChainService:
                 "wallet_id": wallet_id,
                 "wallet_sync": wallet_result,
                 "activity_sync": activity_result,
-                "synced_at": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(),
+                "synced_at": datetime.now(timezone.utc).isoformat(),
             }
         else:
             config = self.provider_config(network_id)
