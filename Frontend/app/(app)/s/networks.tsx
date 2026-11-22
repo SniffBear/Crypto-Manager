@@ -215,7 +215,7 @@ export default function NetworksScreen() {
                 {validate.isError ? <NoticeBanner tone="warning" title="Address validation failed" message={errorText(validate.error)} /> : null}
                 {validate.data ? (
                   <NoticeBanner
-                    tone={validate.data.valid ? 'success' : 'warning'}
+                    tone={validate.data.valid ? 'info' : 'warning'}
                     title={validate.data.valid ? 'Address format accepted' : 'Address not accepted'}
                     message={validate.data.reason ?? validate.data.format}
                   />
