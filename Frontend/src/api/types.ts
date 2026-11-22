@@ -106,11 +106,41 @@ export interface ChainSyncResult {
   status: string;
   source: string;
   native_asset: string;
-  balance: string;
+  balance?: string | null;
   balance_raw?: string;
   decimals: number;
   synced_at: ISODateString;
   [key: string]: unknown;
+}
+
+export interface ChainPortfolioSummary {
+  status: string;
+  wallet_count: number;
+  value_usd: number | null;
+  value_status: string;
+  wallets: Array<{
+    wallet_id: string;
+    label?: string;
+    address: string;
+    network_id: string;
+    chain: string;
+    network: string;
+    status: string;
+    native_asset?: string | null;
+    balance?: string | null;
+    decimals?: number | null;
+    synced_at?: ISODateString | null;
+    value_usd: number | null;
+  }>;
+  asset_totals: Array<{
+    network_id: string;
+    asset_id: string;
+    symbol: string;
+    balance: string;
+    wallet_count: number;
+    value_usd: number | null;
+  }>;
+  updated_at: ISODateString;
 }
 
 /* ────────────────────────────  ASSETS  ──────────────────────────── */
