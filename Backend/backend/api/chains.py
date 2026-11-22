@@ -98,8 +98,6 @@ async def configure_provider(
     allowed_headers = {None, "x-api-key", "api-key", "X-API-KEY", "Authorization"}
     if body.api_key_header not in allowed_headers:
         raise HTTPException(status_code=400, detail="Unsupported provider API-key header")
-    if network.family == "privacy_rpc" and not body.username:
-        raise HTTPException(status_code=400, detail="Privacy wallet RPC requires an authenticated local endpoint")
     config = {
         "base_url": base_url,
         "api_key": body.api_key,
