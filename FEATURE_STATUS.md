@@ -64,11 +64,12 @@ Do not deposit funds to a non-Solana wallet unless you have independently verifi
 - No automatic tax filing, jurisdiction-specific tax classification or complete historical chain import is claimed.
 - Encrypted metadata sync is manual; no cloud relay is configured.
 
-## Validation run for this branch
+## Validation status for multi-chain branch
 
-- Backend: `python -m pytest -q` — 40 passed.
-- Backend bytecode compilation: `python -m compileall -q backend` — passed.
-- Frontend source tests: `npm test` — 6 passed.
-- Frontend typecheck/lint: not verified in this environment because `node_modules`/Expo packages are not installed. Run `npm ci`, then `npm run typecheck` and `npm run lint` before release.
+- The starting commit's reported baseline was 40 backend tests and 6 frontend source tests; that result predates this multi-chain implementation.
+- New chain registry, address-validation, EVM adapter, Esplora adapter and capability-matrix tests have been added.
+- Local execution of the updated backend and Expo suites has not been performed in the current implementation environment.
+- GitHub Actions was triggered for the draft PR, but the available runs failed before executing any job steps (zero reported steps). Treat this as an unverified CI/runner failure, not as a passing build and not as a confirmed source-code failure.
+- Run `pip install -r Backend/requirements-dev.txt && pytest -q && python -m compileall -q backend` from `Backend/`, and `npm ci && npm run typecheck && npm run lint && npm test` from `Frontend/` before merging.
 
-This is an implementation/development baseline, not a security audit or production custody certification.
+This branch is an implementation/development baseline, not a security audit or production custody certification.
