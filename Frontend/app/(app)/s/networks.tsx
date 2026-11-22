@@ -37,6 +37,7 @@ export default function NetworksScreen() {
   const [label, setLabel] = useState('Watch wallet');
   const [providerUrl, setProviderUrl] = useState('');
   const [apiKey, setApiKey] = useState('');
+  const [apiKeyHeader, setApiKeyHeader] = useState('x-api-key');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
@@ -97,6 +98,7 @@ export default function NetworksScreen() {
     mutationFn: () => api.chains.configureProvider(selectedId, {
       base_url: providerUrl.trim(),
       api_key: apiKey.trim() || undefined,
+      api_key_header: apiKeyHeader.trim() || undefined,
       username: username.trim() || undefined,
       password: password || undefined,
     }),
@@ -122,6 +124,7 @@ export default function NetworksScreen() {
     validate.reset();
     setProviderUrl(item.default_endpoint ?? '');
     setApiKey('');
+    setApiKeyHeader('x-api-key');
     setUsername('');
     setPassword('');
   };
@@ -290,6 +293,7 @@ export default function NetworksScreen() {
                   autoCorrect={false}
                 />
                 <Input label="API key (optional)" value={apiKey} onChangeText={setApiKey} secureTextEntry autoCapitalize="none" autoCorrect={false} />
+                <Input label="API key header" value={apiKeyHeader} onChangeText={setApiKeyHeader} autoCapitalize="none" autoCorrect={false} />
                 {selected.family === 'privacy_rpc' ? (
                   <>
                     <Input label="Local wallet RPC username (optional)" value={username} onChangeText={setUsername} autoCapitalize="none" autoCorrect={false} />
