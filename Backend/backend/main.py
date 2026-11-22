@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
-from .api import accounting, activity, address_book, alerts, assets, auth, backups, execution, feature_suite, multisig, portfolio, providers, receive, reconciliation, research, risk, rpc, strategies, sync, vault, wallets, watchlists
+from .api import accounting, activity, address_book, alerts, assets, auth, backups, chains, execution, feature_suite, multisig, portfolio, providers, receive, reconciliation, research, risk, rpc, strategies, sync, vault, wallets, watchlists
 from .core.state import AppState
 from .core.vault import VaultManager
 from .workers.activity_sync import ActivitySyncWorker
@@ -81,6 +81,7 @@ def build_app() -> FastAPI:
     app.include_router(auth.router, prefix="/api/v1")
     app.include_router(vault.router, prefix="/api/v1")
     app.include_router(wallets.router, prefix="/api/v1")
+    app.include_router(chains.router, prefix="/api/v1")
     app.include_router(address_book.router, prefix="/api/v1")
     app.include_router(feature_suite.router, prefix="/api/v1")
     app.include_router(reconciliation.router, prefix="/api/v1")
