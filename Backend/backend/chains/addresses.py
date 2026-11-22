@@ -47,6 +47,8 @@ def _base58check_payload(value: str) -> tuple[int, bytes]:
     expected = hashlib.sha256(hashlib.sha256(payload).digest()).digest()[:4]
     if checksum != expected:
         raise ValueError("Address checksum mismatch")
+    if len(payload) != 21:
+        raise ValueError("Base58Check address payload must contain a one-byte version and 20-byte hash")
     return payload[0], payload[1:]
 
 
@@ -136,6 +138,19 @@ def validate_address(network: Network, address: str) -> AddressValidation:
         if network.family == "evm":
             if not re.fullmatch(r"0x[a-fA-F0-9]{40}", address):
                 raise ValueError("Expected a 20-byte 0x-prefixed EVM address")
+            body = address[2:]
+            if body.lower() != body and body.upper() != body:
+                from Crypto.Hash import keccak
+
+                digest = keccak.new(digest_bits=256)
+                digest.update(body.lower().encode("ascii"))
+                checksum = digest.hexdigest()
+                expected = "".join(
+                    char.upper() if char in "abcdef" and int(checksum[index], 16) >= 8 else char
+                    for index, char in enumerate(body.lower())
+                )
+                if body != expected:
+                    raise ValueError("Mixed-case EVM address has an invalid EIP-55 checksum")
             return AddressValidation(True, network.id, "evm-hex")
 
         if network.chain == "monero":
