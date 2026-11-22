@@ -143,9 +143,15 @@ def validate_address(network: Network, address: str) -> AddressValidation:
             return AddressValidation(True, network.id, "cryptonote-base58")
 
         if network.chain == "zano":
-            # Zano uses its own wallet/address conventions. Until its native
-            # wallet RPC validator is configured, do not accept generic Base58.
-            raise ValueError("Zano address validation requires the native Zano wallet RPC adapter")
+            # Zano's own wallet RPC remains authoritative. This only checks
+            # the documented public/integrated address shape; sync verifies
+            # the address against the locally opened Zano wallet.
+            if not re.fullmatch(r"(?:Zx|iZ)[1-9A-HJ-NP-Za-km-z]{88,110}", address):
+                raise ValueError("Address does not match the Zano address format")
+            return AddressValidation(
+                True, network.id, "zano-syntax-only",
+                "Syntax checked only; native Zano wallet RPC verification is required",
+            )
 
         if network.family == "utxo":
             if network.bech32_hrp and address.lower().startswith(network.bech32_hrp + "1"):
