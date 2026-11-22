@@ -81,6 +81,9 @@ class WalletService:
         _, public, secret64 = key_material_from_seed(seed)
         wallet = {
             "id": secrets.token_hex(8),
+            "chain": "solana",
+            "network": "mainnet-beta",
+            "network_id": "solana-mainnet-beta",
             "address": b58encode(public),
             "secret_key_b58": b58encode(secret64),
             "secret_key_b64": base64.b64encode(secret64).decode(),
@@ -214,4 +217,10 @@ class WalletService:
             "notes",
             "tags",
         }
-        return {k: wallet.get(k) for k in keys if k in wallet}
+        result = {k: wallet.get(k) for k in keys if k in wallet}
+        # Legacy vault entries predate explicit network metadata; they are
+        # Solana wallets because this application was Solana-only at creation.
+        result.setdefault("chain", "solana")
+        result.setdefault("network", "mainnet-beta")
+        result.setdefault("network_id", "solana-mainnet-beta")
+        return result
