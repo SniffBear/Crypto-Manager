@@ -5,7 +5,7 @@
 **Frontend target:** React Native + Expo + TypeScript  
 **Primary frontend directory:** `/Frontend/`  
 **Backend directory:** `/Backend/`  
-**Current blockchain scope:** Solana only  
+**Current blockchain scope:** Solana native wallet/execution plus read-only multi-chain watch-only adapters  
 **Product character:** Wallet-first self-custody vault with professional digital-asset terminal capabilities  
 **Design authority:** This document takes precedence over older UI patterns, legacy trading-oriented screens, or conflicting styling found elsewhere in the repository.
 
@@ -101,11 +101,18 @@ A user should quickly understand:
 
 ### Current scope
 
-Implement **Solana only**.
+Preserve Solana as the only chain with native wallet generation/import and transaction construction in the current implementation.
 
-Do not add Ethereum, Bitcoin, Base, Arbitrum, Polygon, BNB Chain, Cosmos, XRP, Sui, Aptos, or any other blockchain in the current frontend.
+The frontend also exposes a dedicated **Blockchains & Networks** workspace for watch-only address registration and read-only balance synchronization across the network families documented in FEATURE_STATUS.md:
 
-The architecture should remain extensible for future blockchain families, but the current UI and data model must remain focused on Solana.
+- EVM networks: Ethereum, Ethereum Classic, Base, Arbitrum, Optimism, Polygon and BNB Smart Chain.
+- UTXO networks: Bitcoin, Litecoin, Dogecoin and Ravencoin.
+- Ergo and Kaspa.
+- Privacy networks: Monero and Zano, through locally running native wallet RPC services.
+
+These additional networks must be clearly labelled PARTIAL / READ-ONLY. Do not present key generation, mnemonic import, signing, transaction construction, broadcasting, swaps or complete transaction history as implemented unless those capabilities are added and independently verified for the specific chain.
+
+The network registry and chain adapters own network identity, address validation and read capabilities. Existing Solana screens remain unchanged unless a deliberate chain-aware enhancement is required.
 
 ### Future capabilities
 
