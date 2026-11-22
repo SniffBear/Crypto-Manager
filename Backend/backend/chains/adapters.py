@@ -251,16 +251,25 @@ class MoneroWalletRPCAdapter(ReadOnlyAdapter):
         if not matched and address_payload.get("address") != expected_address:
             raise AdapterError("Configured Monero wallet RPC does not match the imported wallet address")
         address_index = matched.get("address_index") if matched else None
+        if isinstance(address_index, dict):
+            address_index = address_index.get("minor")
+        balance_params = {"account_index": account_index}
+        if address_index is not None:
+            balance_params["address_indices"] = [int(address_index)]
         result = await self.request("POST", "json_rpc", body={
             "jsonrpc": "2.0", "id": "0", "method": "get_balance",
-            "params": {"account_index": account_index},
+            "params": balance_params,
         })
         payload = result.get("result", result)
         raw = int(payload.get("balance", 0))
         unlocked = int(payload.get("unlocked_balance", 0))
         transfers_result = await self.request("POST", "json_rpc", body={
             "jsonrpc": "2.0", "id": "0", "method": "get_transfers",
-            "params": {"in": True, "out": True, "pending": True, "failed": True, "pool": True, "account_index": account_index},
+            "params": {
+                "in": True, "out": True, "pending": True, "failed": True, "pool": True,
+                "account_index": account_index,
+                **({"subaddr_indices": [int(address_index)]} if address_index is not None else {}),
+            },
         })
         transfers_payload = transfers_result.get("result", transfers_result)
         activity = []
