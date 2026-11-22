@@ -55,7 +55,7 @@ export default function ReconciliationScreen() {
         <View>
           <SectionHeader title="Reconciliation history" />
           <Stack gap={spacing.sm} style={{ marginTop: spacing.md }}>
-            {(history.data ?? []).length === 0 ? <Text tone="muted">No previous snapshots.</Text> : history.data.map((item: any, index: number) => <Card key={`${item.reconciled_at}-${index}`}><Row justify="space-between"><Text variant="mono">{new Date(item.reconciled_at).toLocaleString()}</Text><Text variant="label">{item.status}</Text></Row><Text variant="caption" tone="muted">{item.wallet_count} wallet(s) · {item.new_transactions_detected} new transaction(s)</Text></Card>)}
+            {(history.data ?? []).length === 0 ? <Text tone="muted">No previous snapshots.</Text> : (history.data ?? []).map((item: any, index: number) => <Card key={`${item.reconciled_at}-${index}`}><Row justify="space-between"><Text variant="mono">{new Date(item.reconciled_at).toLocaleString()}</Text><Text variant="label">{item.status}</Text></Row><Text variant="caption" tone="muted">{item.wallet_count} wallet(s) · {item.new_transactions_detected} new transaction(s)</Text></Card>)}
           </Stack>
         </View>
       </Stack>

@@ -69,14 +69,14 @@ export default function BackupsScreen() {
         <Stack gap={spacing.lg}>
           <Input label="Vault password" value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" autoCorrect={false} />
           <NoticeBanner
-            tone="danger"
+            tone="warning"
             title="This will lock the current session"
             message="A pre-restore rollback copy is created automatically before replacement. Unlock is required afterward."
           />
           <Row gap={spacing.md} wrap>
             <Button
               label={mode === 'restore' ? 'Restore' : 'Rollback'}
-              variant="danger"
+              variant="destructive"
               loading={restore.isPending || rollback.isPending}
               onPress={() => {
                 if (mode === 'restore') {
@@ -133,7 +133,7 @@ export default function BackupsScreen() {
         <Row gap={spacing.sm} wrap>
           <Button label="Verify" variant="tertiary" size="sm" onPress={() => runVerify(row)} />
           <Button label="Restore" variant="secondary" size="sm" onPress={() => { setSelected(row); openRestore('restore'); }} />
-          <Button label="Delete" variant="danger" size="sm" onPress={() => void runDelete(row)} />
+          <Button label="Delete" variant="destructive" size="sm" onPress={() => void runDelete(row)} />
         </Row>
       ),
     },
@@ -189,7 +189,7 @@ export default function BackupsScreen() {
               {selected.manifest ? (
                 <Text variant="monoSmall" tone="muted">{selected.manifest.sha256}</Text>
               ) : null}
-              <Button label="Rollback selected backup" variant="danger" onPress={() => openRestore('rollback')} />
+              <Button label="Rollback selected backup" variant="destructive" onPress={() => openRestore('rollback')} />
             </Stack>
           </Card>
         ) : null}

@@ -23,7 +23,7 @@ import { Text } from '@/components/primitives/Text';
 import { Button, Card, Divider, Input, KeyValue, Row, Stack } from '@/components/primitives';
 import { PageContainer } from '@/components/chrome/PageContainer';
 import { PageHeader, SectionHeader } from '@/components/chrome/PageHeader';
-import { usePageMeta } from '@/components/chrome/shell-context';
+import { usePageMeta, useSheet } from '@/components/chrome/shell-context';
 import { StatusBadge } from '@/components/StatusBadge';
 import { WalletAvatar } from '@/components/utility';
 import { ListRow } from '@/components/data';
@@ -386,7 +386,7 @@ function SecretExportSheet({
         {!result ? (
           <Button
             label="Export once"
-            variant="danger"
+            variant="destructive"
             loading={exportMutation.isPending}
             disabled={!password}
             onPress={() =>

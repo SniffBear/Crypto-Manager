@@ -352,7 +352,9 @@ export function useCreateStrategy() {
     mutationFn: (body: {
       name: string;
       enabled?: boolean;
+      interval_seconds?: number;
       rules?: Record<string, unknown>[];
+      actions?: Record<string, unknown>[];
     }) => api.strategies.create(body),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.strategies }),
   });

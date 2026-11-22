@@ -350,13 +350,6 @@ export interface BackupVerificationResult {
   detail?: string;
 }
 
-export interface BackupRestoreResult {
-  restored: boolean;
-  name: string;
-  rollback_backup: string;
-  requires_unlock: boolean;
-}
-
 /* ──────────────────────────  EXECUTION  ────────────────────────── */
 export interface SimulationRequest {
   wallet_id: string;

@@ -74,7 +74,7 @@ const CAPABILITY_SCREENS: Record<
   portfolioSnapshots: { href: routes.vaultPortfolio, note: 'Snapshots are written; see portfolioHistory' },
   portfolioHistory: {
     href: routes.vaultPortfolio,
-    note: 'Snapshots are persisted, but the backend does not expose a GET history endpoint yet',
+    note: 'GET /portfolio/history returns persisted snapshots',
   },
   activity: { href: routes.activity, note: 'Timeline of records with type and status' },
   activityFilterByWallet: {
@@ -113,7 +113,74 @@ const CAPABILITY_SCREENS: Record<
     href: routes.multisig,
     note: 'Off-chain Ed25519 proposal approvals; no on-chain multisig program integration',
   },
-  addressBook: { href: routes.unavailable('addresses'), note: 'No address-book route is implemented' },
+  walletSecretExport: {
+    href: routes.vaultSecurity,
+    note: 'Re-authenticated, one-time secret export from the vault security screen',
+  },
+  tokenMetadata: { href: routes.assets, note: 'Token-2022 metadata is read and shown with each asset' },
+  portfolioReconciliation: {
+    href: routes.reconciliation,
+    note: 'Read-only Solana balance and activity reconciliation with stored snapshots',
+  },
+  walletGroups: { href: routes.walletsGroups, note: 'Persisted wallet groups in the encrypted vault' },
+  transactionPolicies: {
+    href: routes.featureSuite,
+    note: 'Spending and recipient trust rules enforced by transfer execution',
+  },
+  scheduledPaymentIntents: {
+    href: routes.featureSuite,
+    note: 'Scheduled and recurring intents require manual approval; no automatic transfers',
+  },
+  batchTransferDrafts: {
+    href: routes.featureSuite,
+    note: 'Batch drafts require separate simulation and authorization per item',
+  },
+  costBasisFifo: { href: routes.accounting, note: 'FIFO cost basis lots and realized P&L summaries' },
+  paymentRequests: {
+    href: routes.featureSuite,
+    note: 'Payment requests are recorded locally; no on-chain invoice protocol',
+  },
+  explorerLinks: { href: routes.featureSuite, note: 'Configurable read-only links to external block explorers' },
+  walletGraph: { href: routes.featureSuite, note: 'Local transaction graph view derived from activity records' },
+  localAssistant: { href: routes.featureSuite, note: 'Read-only local assistant; it does not execute trades' },
+  encryptedMetadataSync: {
+    href: routes.featureSuite,
+    note: 'Argon2id/AES-GCM encrypted metadata export and import',
+  },
+  securityCenter: { href: routes.vaultSecurity, note: 'Vault encryption posture and per-wallet permissions' },
+  securityAlertReview: { href: routes.alerts, note: 'Security alerts are persisted and reviewable' },
+  recoveryChecklist: { href: routes.featureSuite, note: 'Local recovery checklist for encrypted backups' },
+  backupIntegrityVerification: {
+    href: routes.backups,
+    note: 'Backups are verified against their stored SHA-256 digest',
+  },
+  networkCapabilityMatrix: {
+    href: routes.featureSuite,
+    note: 'Reports which networks have a native read/sync adapter (Solana only)',
+  },
+  recordedExchangeHistory: {
+    href: routes.accounting,
+    note: 'Imported exchange rows are displayed; exchange APIs are not queried',
+  },
+  transactionCsvExport: { href: routes.accounting, note: 'CSV exports of accounting and activity records' },
+  feeQuoteCache: { href: routes.featureSuite, note: 'Locally cached fee quotes; quotes are not live execution' },
+  alertOnlyLimitOrders: {
+    href: routes.featureSuite,
+    note: 'Limit orders raise alerts only; they never move funds',
+  },
+  automaticEncryptedBackups: {
+    href: routes.backups,
+    note: 'Automatic encrypted backups with a configurable retention count',
+  },
+  processLocalSessionManagement: {
+    href: routes.featureSuite,
+    note: 'Sessions are scoped to the running process; no persistent refresh tokens',
+  },
+  metadataSync: { href: routes.featureSuite, note: 'Periodic encrypted metadata synchronization worker' },
+  addressBook: {
+    href: routes.addressBook,
+    note: 'Network-aware contacts with trusted-recipient flags in the encrypted vault',
+  },
   settings: { href: routes.unavailable('settings'), note: 'No preferences, profile or config route' },
   tokenScreener: {
     href: routes.unavailable('token-screener'),
@@ -132,8 +199,8 @@ const CAPABILITY_SCREENS: Record<
     note: 'Activity records carry no guaranteed signature field',
   },
   syncControl: {
-    href: routes.unavailable('sync'),
-    note: 'Workers run on an interval; nothing to start, pause or inspect',
+    href: routes.sync,
+    note: 'Manual sync status and controls for the configured intervals',
   },
   websocketEvents: { href: null, note: 'Drives the connection indicator and live invalidation' },
   health: { href: routes.vaultHealth, note: 'Unversioned probe: status, vault exists, vault locked' },

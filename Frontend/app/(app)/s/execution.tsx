@@ -155,7 +155,7 @@ export default function ExecutionScreen() {
               />
               <Button
                 label="Broadcast simulated transfer"
-                variant="danger"
+                variant="destructive"
                 loading={execute.isPending}
                 disabled={!simulationId || execute.isPending}
                 onPress={() => {
@@ -288,7 +288,7 @@ export default function ExecutionScreen() {
               />
               <Button
                 label="Execute swap"
-                variant="danger"
+                variant="destructive"
                 disabled={!canSwap || swapExecute.isPending}
                 loading={swapExecute.isPending}
                 onPress={() =>
