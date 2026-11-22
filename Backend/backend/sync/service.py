@@ -58,7 +58,7 @@ class SyncService:
         return result
 
     async def sync_wallets(self) -> dict[str, Any]:
-        wallets = self.state.vault.data().get("wallets", [])
+        wallets = [wallet for wallet in self.state.vault.data().get("wallets", []) if (wallet.get("chain") or "solana") == "solana"]
         client = self.client()
         pool = self.rpc_pool()
 
@@ -151,7 +151,7 @@ class SyncService:
         return self._remember("wallets", result)
 
     async def sync_activity(self) -> dict[str, Any]:
-        wallets = self.state.vault.data().get("wallets", [])
+        wallets = [wallet for wallet in self.state.vault.data().get("wallets", []) if (wallet.get("chain") or "solana") == "solana"]
         client = self.client()
         pool = self.rpc_pool()
 
