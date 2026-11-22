@@ -104,6 +104,16 @@ export const STATUS_REGISTRY: Record<string, StatusDefinition> = {
   failed: S('FAILED', 'danger', 'cross'),
   'transfer requested': S('TRANSFER REQUESTED', 'info', 'clock'),
 
+  /* Chain synchronization and network capabilities */
+  synced: S('SYNCED', 'success', 'check'),
+  'not synced': S('NOT SYNCED', 'neutral', 'clock'),
+  'not configured': S('NOT CONFIGURED', 'neutral', 'slash'),
+  'not implemented': S('NOT IMPLEMENTED', 'neutral', 'slash'),
+  implemented: S('IMPLEMENTED', 'success', 'check'),
+  'read only partial': S('READ-ONLY', 'stale', 'flask'),
+  'partial first page': S('PARTIAL HISTORY', 'stale', 'flask'),
+  'partial provider page': S('PARTIAL HISTORY', 'stale', 'flask'),
+
   /* Capability */
   unsupported: S('UNSUPPORTED', 'neutral', 'slash'),
   unavailable: S('UNAVAILABLE', 'neutral', 'slash'),
