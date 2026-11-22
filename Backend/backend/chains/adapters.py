@@ -102,7 +102,9 @@ class EVMReadAdapter(ReadOnlyAdapter):
                 decimals = int(str(decimals_raw), 16)
                 if 0 <= decimals <= 36:
                     token_balances.append({
-                        "contract": contract,
+                        "asset_id": token,
+                        "contract": token,
+                        "symbol": (wallet.get("token_symbols") or {}).get(token),
                         "balance_raw": str(token_raw),
                         "decimals": decimals,
                         "balance": _units(token_raw, decimals),
