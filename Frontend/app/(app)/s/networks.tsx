@@ -54,6 +54,10 @@ export default function NetworksScreen() {
     queryKey: ['wallets'],
     queryFn: () => api.wallets.list(),
   });
+  const chainPortfolio = useQuery({
+    queryKey: ['chain-portfolio'],
+    queryFn: () => api.chains.portfolio(),
+  });
   const provider = useQuery({
     queryKey: ['chain-provider', selectedId],
     queryFn: () => api.chains.provider(selectedId),
@@ -107,7 +111,8 @@ export default function NetworksScreen() {
     mutationFn: (walletId: string) => api.chains.syncWallet(selectedId, walletId),
     onSuccess: async (result) => {
       await qc.invalidateQueries({ queryKey: ['wallets'] });
-      toast.success('Wallet synchronized', result.balance + ' ' + result.native_asset);
+      await qc.invalidateQueries({ queryKey: ['chain-portfolio'] });
+      toast.success('Wallet synchronized', result.balance == null ? 'Balance unavailable' : result.balance + ' ' + result.native_asset);
     },
   });
 
@@ -146,6 +151,36 @@ export default function NetworksScreen() {
           title="Read-only multi-chain foundation"
           message="Solana keeps its existing wallet functionality. The new network adapters currently support watch-only address monitoring and read-only data where configured. Do not send funds to a newly added network until its chain-native wallet and recovery workflow is independently verified."
         />
+
+        <Card>
+          <Stack gap={spacing.md}>
+            <SectionHeader title="Multi-chain portfolio" />
+            <Row justify="between">
+              <Text variant="caption" tone="muted">Synchronized wallets</Text>
+              <Text variant="label">{chainPortfolio.data?.wallet_count ?? 0}</Text>
+            </Row>
+            <Text variant="caption" tone="muted">
+              USD valuation is not calculated by this chain layer. Balances remain grouped by network and are never added together across different assets.
+            </Text>
+            {chainPortfolio.isError ? (
+              <NoticeBanner tone="warning" title="Portfolio data unavailable" message={errorText(chainPortfolio.error)} />
+            ) : null}
+            {(chainPortfolio.data?.wallets ?? []).map((wallet) => (
+              <Row key={wallet.wallet_id} justify="space-between" align="center" gap={spacing.md}>
+                <Stack gap={spacing.xxs} style={{ flex: 1 }}>
+                  <Text variant="label">{wallet.label || wallet.network_id}</Text>
+                  <Text variant="caption" tone="muted">{wallet.network_id}</Text>
+                </Stack>
+                <Stack gap={spacing.xxs} align="end">
+                  <Text variant="monoSmall">
+                    {wallet.balance == null ? 'Unavailable' : `${wallet.balance} ${wallet.native_asset ?? ''}`}
+                  </Text>
+                  <StatusBadge status={wallet.status.toLowerCase()} size="sm" />
+                </Stack>
+              </Row>
+            ))}
+          </Stack>
+        </Card>
 
         <ViewFamilyFilters
           family={family}
