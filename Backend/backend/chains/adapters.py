@@ -242,9 +242,21 @@ class MoneroWalletRPCAdapter(ReadOnlyAdapter):
         # Monero address balances cannot be reliably queried from a public
         # address alone. This adapter connects to a local monero-wallet-rpc
         # instance with the user's view-only wallet already opened.
+        account_index = int(wallet.get("account_index", 0))
+        address_result = await self.request("POST", "json_rpc", body={
+            "jsonrpc": "2.0", "id": "0", "method": "get_address",
+            "params": {"account_index": account_index},
+        })
+        address_payload = address_result.get("result", address_result)
+        addresses = address_payload.get("addresses", [])
+        expected_address = str(wallet.get("address") or "")
+        matched = next((item for item in addresses if item.get("address") == expected_address), None)
+        if not matched and address_payload.get("address") != expected_address:
+            raise AdapterError("Configured Monero wallet RPC does not match the imported wallet address")
+        address_indices = [matched.get("address_index")] if matched and matched.get("address_index") is not None else None
         result = await self.request("POST", "json_rpc", body={
             "jsonrpc": "2.0", "id": "0", "method": "get_balance",
-            "params": {"account_index": int(wallet.get("account_index", 0))},
+            "params": {"account_index": account_index, **({"address_indices": address_indices} if address_indices else {})},
         })
         payload = result.get("result", result)
         raw = int(payload.get("balance", 0))
@@ -268,6 +280,15 @@ class MoneroWalletRPCAdapter(ReadOnlyAdapter):
 
 class ZanoWalletRPCAdapter(ReadOnlyAdapter):
     async def sync_wallet(self, wallet: dict[str, Any]) -> dict[str, Any]:
+        address_result = await self.request("POST", "json_rpc", body={
+            "jsonrpc": "2.0", "id": 0, "method": "getaddress",
+        })
+        address_payload = address_result.get("result", address_result)
+        expected_address = str(wallet.get("address") or "")
+        if address_payload.get("address") != expected_address:
+            # The provider config can point to a dedicated local wallet RPC.
+            # Do not accidentally attribute another loaded wallet's balance.
+            raise AdapterError("Configured Zano wallet RPC does not match the imported wallet address")
         result = await self.request("POST", "json_rpc", body={
             "jsonrpc": "2.0", "id": 0, "method": "getbalance",
         })
