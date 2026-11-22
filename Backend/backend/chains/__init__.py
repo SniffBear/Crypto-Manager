@@ -1,1 +1,1 @@
-"""Multi-chain, read-only wallet adapters."""\n
+"""Multi-chain, read-only wallet adapters."""
