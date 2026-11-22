@@ -719,13 +719,30 @@ class FeatureSuite:
         return sorted(swaps, key=lambda x: x.get("created_at", ""), reverse=True)[:500]
 
     def network_capabilities(self) -> list[dict[str, Any]]:
-        return [
-            {"network": "solana", "symbol": "SOL", "wallet_read": "LIVE", "send": "PARTIAL_LIVE_BROADCAST_DISABLED_BY_DEFAULT", "swap": "JUPITER_PROVIDER_ONLY", "reconciliation": "LIVE"},
-            *[{"network": n, "symbol": symbol, "wallet_read": "NOT_IMPLEMENTED", "send": "NOT_IMPLEMENTED", "swap": "NOT_IMPLEMENTED", "reconciliation": "NOT_IMPLEMENTED"}
-              for n, symbol in (("bitcoin", "BTC"), ("litecoin", "LTC"), ("dogecoin", "DOGE"), ("monero", "XMR"),
-                                ("zano", "ZANO"), ("ethereum-classic", "ETC"), ("ravencoin", "RVN"),
-                                ("ergo", "ERG"), ("kaspa", "KAS"))],
-        ]
+        from ..chains.registry import list_networks
+
+        rows = []
+        for item in list_networks():
+            is_solana = item["family"] == "solana"
+            capability_set = set(item["capabilities"])
+            rows.append({
+                "network": item["id"],
+                "chain": item["chain"],
+                "family": item["family"],
+                "name": item["name"],
+                "symbol": item["symbol"],
+                "status": item["status"],
+                "capabilities": item["capabilities"],
+                "wallet_read": "LIVE" if is_solana else (
+                    "READ_ONLY_PARTIAL" if "native_balance" in capability_set else "NOT_IMPLEMENTED"
+                ),
+                "send": "PARTIAL_LIVE_BROADCAST_DISABLED_BY_DEFAULT" if is_solana else "DISABLED",
+                "swap": "JUPITER_PROVIDER_ONLY" if is_solana else "NOT_IMPLEMENTED",
+                "reconciliation": "LIVE" if is_solana else (
+                    "READ_ONLY_PARTIAL" if "native_balance" in capability_set else "NOT_IMPLEMENTED"
+                ),
+            })
+        return rows
 
     # ---- Security center ------------------------------------------------------------
     def security_summary(self) -> dict[str, Any]:
