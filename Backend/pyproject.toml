@@ -1,0 +1,9 @@
+[project]
+name = "solana-vault-backend"
+version = "1.0.0"
+description = "Python/FastAPI backend for Solana Vault"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+addopts = "-q"

@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "Solana Vault",
+    "slug": "solana-vault",
+    "version": "1.0.0",
+    "scheme": "solana-vault",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0B0D10",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.solanavault.app"
+    },
+    "android": {
+      "package": "com.solanavault.app"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}

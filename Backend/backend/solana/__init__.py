@@ -1,0 +1,1 @@
+"""Native Solana RPC integration used by the wallet-first sync engine."""

@@ -1,0 +1,56 @@
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+*.pfx
+*wallet-export*
+*wallet_export*
+*seed-phrase*
+*seed_phrase*
+*mnemonic*
+*private-key*
+*private_key*
+*.svault
+*.svault.*
+*.keystore
+*.jks
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+Backend/venv/
+
+# JavaScript / Expo
+node_modules/
+.expo/
+dist/
+build/
+web-build/
+
+# Runtime data, logs, backups, and local databases
+data/
+Backups/
+backups/
+*.log
+*.sqlite
+*.sqlite3
+*.db
+*.bak
+*.tmp
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
