@@ -285,10 +285,15 @@ class ZanoWalletRPCAdapter(ReadOnlyAdapter):
         })
         address_payload = address_result.get("result", address_result)
         expected_address = str(wallet.get("address") or "")
-        if address_payload.get("address") != expected_address:
-            # The provider config can point to a dedicated local wallet RPC.
-            # Do not accidentally attribute another loaded wallet's balance.
-            raise AdapterError("Configured Zano wallet RPC does not match the imported wallet address")
+        own_address = str(address_payload.get("address") or "")
+        if own_address != expected_address:
+            split_result = await self.request("POST", "json_rpc", body={
+                "jsonrpc": "2.0", "id": 0, "method": "split_integrated_address",
+                "params": {"integrated_address": expected_address},
+            })
+            split_payload = split_result.get("result", split_result)
+            if str(split_payload.get("standard_address") or "") != own_address:
+                raise AdapterError("Configured Zano wallet RPC does not match the imported wallet address")
         result = await self.request("POST", "json_rpc", body={
             "jsonrpc": "2.0", "id": 0, "method": "getbalance",
         })
