@@ -59,8 +59,8 @@ _NETWORKS = [
 
     Network("ergo-mainnet", "ergo", "ergo", "Ergo", "mainnet", "ERG", 9, provider_kind="ergo_node", status="PARTIAL", capabilities=("watch_only", "address_validation", "native_balance")),
     Network("ergo-testnet", "ergo", "ergo", "Ergo Testnet", "testnet", "tERG", 9, provider_kind="ergo_node", status="PARTIAL", capabilities=("watch_only", "address_validation", "native_balance")),
-    Network("kaspa-mainnet", "kaspa", "kaspa", "Kaspa", "mainnet", "KAS", 8, provider_kind="kaspa_rest", default_endpoint="https://api.kaspa.org", bech32_hrp="kaspa", status="PARTIAL", capabilities=("watch_only", "address_validation", "native_balance", "activity")),
-    Network("kaspa-testnet-10", "kaspa", "kaspa", "Kaspa Testnet-10", "testnet-10", "TKAS", 8, provider_kind="kaspa_rest", bech32_hrp="kaspatest", status="PARTIAL", capabilities=("watch_only", "address_validation", "native_balance", "activity")),
+    Network("kaspa-mainnet", "kaspa", "kaspa", "Kaspa", "mainnet", "KAS", 8, provider_kind="kaspa_rest", default_endpoint="https://api.kaspa.org", bech32_hrp="kaspa", status="PARTIAL", capabilities=("watch_only", "address_validation", "native_balance")),
+    Network("kaspa-testnet-10", "kaspa", "kaspa", "Kaspa Testnet-10", "testnet-10", "TKAS", 8, provider_kind="kaspa_rest", bech32_hrp="kaspatest", status="PARTIAL", capabilities=("watch_only", "address_validation", "native_balance")),
     Network("monero-mainnet", "monero", "privacy_rpc", "Monero", "mainnet", "XMR", 12, provider_kind="monero_wallet_rpc", status="PARTIAL", capabilities=("watch_only", "address_validation", "native_balance", "activity")),
     Network("monero-testnet", "monero", "privacy_rpc", "Monero Testnet", "testnet", "XMR", 12, provider_kind="monero_wallet_rpc", status="PARTIAL", capabilities=("watch_only", "address_validation", "native_balance", "activity")),
     Network("monero-stagenet", "monero", "privacy_rpc", "Monero Stagenet", "stagenet", "XMR", 12, provider_kind="monero_wallet_rpc", status="PARTIAL", capabilities=("watch_only", "address_validation", "native_balance", "activity")),
