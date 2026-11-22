@@ -65,12 +65,35 @@ class ChainService:
             sync = SyncService(self.state)
             wallet_result = await sync.sync_wallets()
             activity_result = await sync.sync_activity()
+            token_balances = []
+            native_balance = None
+            for asset_id, asset in self.state.vault.data().get("assets", {}).items():
+                holding = asset.get("holdings", {}).get(wallet_id)
+                if not holding:
+                    continue
+                item = {
+                    "asset_id": asset_id,
+                    "symbol": asset.get("symbol") or ("SOL" if asset_id == "SOL" else None),
+                    "balance": str(holding.get("amount")),
+                    "decimals": holding.get("decimals", asset.get("decimals")),
+                    "source": holding.get("source", "solana_rpc"),
+                }
+                if asset_id == "SOL":
+                    native_balance = item
+                else:
+                    token_balances.append(item)
             result = {
                 "network_id": network_id,
                 "chain": "solana",
                 "status": "SYNCED" if wallet_result.get("status") == "SYNCED" and activity_result.get("status") == "SYNCED" else "PARTIAL",
                 "source": "EXISTING_SOLANA_SYNC",
                 "wallet_id": wallet_id,
+                "native_asset": "SOL",
+                "balance": native_balance.get("balance") if native_balance else None,
+                "balance_raw": None,
+                "decimals": 9,
+                "native_balance": native_balance,
+                "token_balances": token_balances,
                 "wallet_sync": wallet_result,
                 "activity_sync": activity_result,
                 "synced_at": datetime.now(timezone.utc).isoformat(),
@@ -89,6 +112,68 @@ class ChainService:
             "synced_at": result.get("synced_at"),
         })
         return result
+
+    def portfolio_summary(self) -> dict[str, Any]:
+        wallets = self.state.vault.data().get("wallets", [])
+        rows: list[dict[str, Any]] = []
+        totals: dict[str, dict[str, Any]] = {}
+        for wallet in wallets:
+            sync = wallet.get("chain_sync")
+            if not isinstance(sync, dict):
+                continue
+            network_id = wallet.get("network_id") or network_id_for(
+                wallet.get("chain") or "solana",
+                wallet.get("network") or "mainnet-beta",
+            )
+            native = sync.get("native_balance") if isinstance(sync.get("native_balance"), dict) else {
+                "symbol": sync.get("native_asset"),
+                "balance": sync.get("balance"),
+                "decimals": sync.get("decimals"),
+            }
+            assets = []
+            if native.get("balance") is not None:
+                assets.append(native)
+            assets.extend(sync.get("token_balances") or [])
+            for asset in assets:
+                symbol = str(asset.get("symbol") or asset.get("asset_id") or "UNKNOWN")
+                amount = asset.get("balance")
+                if amount is None:
+                    continue
+                key = f"{network_id}:{asset.get('asset_id') or symbol}"
+                entry = totals.setdefault(key, {
+                    "network_id": network_id,
+                    "asset_id": asset.get("asset_id") or symbol,
+                    "symbol": symbol,
+                    "balance": "0",
+                    "wallet_count": 0,
+                    "value_usd": None,
+                })
+                from decimal import Decimal
+                entry["balance"] = format(Decimal(str(entry["balance"])) + Decimal(str(amount)), "f")
+                entry["wallet_count"] += 1
+            rows.append({
+                "wallet_id": wallet.get("id"),
+                "label": wallet.get("label"),
+                "address": wallet.get("address"),
+                "network_id": network_id,
+                "chain": wallet.get("chain") or "solana",
+                "network": wallet.get("network") or "mainnet-beta",
+                "status": sync.get("status", "UNKNOWN"),
+                "native_asset": sync.get("native_asset"),
+                "balance": sync.get("balance"),
+                "decimals": sync.get("decimals"),
+                "synced_at": sync.get("synced_at"),
+                "value_usd": None,
+            })
+        return {
+            "status": "PARTIAL" if any(row["status"] != "SYNCED" for row in rows) else ("SYNCED" if rows else "NOT_SYNCED"),
+            "wallet_count": len(rows),
+            "value_usd": None,
+            "value_status": "UNAVAILABLE_UNTIL_CHAIN_PRICE_ADAPTERS_ARE_CONFIGURED",
+            "wallets": rows,
+            "asset_totals": list(totals.values()),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
 
     async def provider_health(self, network_id: str) -> dict[str, Any]:
         network = get_network(network_id)
