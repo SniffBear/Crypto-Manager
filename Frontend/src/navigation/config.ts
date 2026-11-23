@@ -127,6 +127,7 @@ export const routes = {
   risk: '/s/risk',
   receive: '/s/receive',
   providers: '/s/providers',
+  networks: '/s/networks',
   rpc: '/s/rpc',
   watchlists: '/s/watchlists',
   strategies: '/s/strategies',
@@ -258,6 +259,7 @@ export const MENU_SECTIONS: MenuSection[] = [
     title: 'Services',
     items: [
       { label: 'Networks & Providers', href: routes.providers, icon: 'plug', availability: 'live' },
+      { label: 'Blockchains & Networks', href: routes.networks, icon: 'globe', availability: 'partial', detail: 'Chain registry, watch-only address imports and read-only network synchronization' },
       { label: 'RPC', href: routes.rpc, icon: 'server', availability: 'live' },
       { label: 'Portfolio Reconciliation', href: routes.reconciliation, icon: 'refresh-cw', availability: 'live', detail: 'Read-only balance and activity reconciliation for currently configured Solana wallets' },
       {

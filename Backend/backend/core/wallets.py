@@ -9,6 +9,8 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from .state import AppState
+from ..chains.registry import get_network, network_id_for
+from ..chains.addresses import validate_address
 
 ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
@@ -79,6 +81,9 @@ class WalletService:
         _, public, secret64 = key_material_from_seed(seed)
         wallet = {
             "id": secrets.token_hex(8),
+            "chain": "solana",
+            "network": "mainnet-beta",
+            "network_id": "solana-mainnet-beta",
             "address": b58encode(public),
             "secret_key_b58": b58encode(secret64),
             "secret_key_b64": base64.b64encode(secret64).decode(),
@@ -118,6 +123,9 @@ class WalletService:
             raise ValueError("64-byte secret key has an invalid public-key suffix")
         wallet = {
             "id": secrets.token_hex(8),
+            "chain": "solana",
+            "network": "mainnet-beta",
+            "network_id": "solana-mainnet-beta",
             "address": b58encode(public),
             "secret_key_b58": b58encode(secret64),
             "secret_key_b64": base64.b64encode(secret64).decode(),
@@ -143,11 +151,23 @@ class WalletService:
         address: str,
         label: str,
         group: str | None = None,
+        chain: str = "solana",
+        network: str = "mainnet-beta",
     ) -> dict[str, Any]:
-        if len(b58decode(address)) != 32:
-            raise ValueError("Invalid Solana public address")
+        network_id = network_id_for(chain, network)
+        try:
+            network_config = get_network(network_id)
+        except KeyError as exc:
+            raise ValueError(f"Unsupported chain/network: {chain}/{network}") from exc
+        validation = validate_address(network_config, address)
+        if not validation.valid:
+            raise ValueError(validation.reason or "Address is invalid for the selected network")
         wallet = {
             "id": secrets.token_hex(8),
+            "chain": chain,
+            "network": network,
+            "network_id": network_id,
+            "address_validation": validation.as_dict(),
             "address": address,
             "label": label,
             "group": group,
@@ -181,6 +201,12 @@ class WalletService:
     def public_view(wallet: dict[str, Any]) -> dict[str, Any]:
         keys = {
             "id",
+            "chain",
+            "network",
+            "network_id",
+            "address_validation",
+            "chain_sync",
+            "chain_sync_status",
             "address",
             "label",
             "group",
@@ -194,4 +220,10 @@ class WalletService:
             "notes",
             "tags",
         }
-        return {k: wallet.get(k) for k in keys if k in wallet}
+        result = {k: wallet.get(k) for k in keys if k in wallet}
+        # Legacy vault entries predate explicit network metadata; they are
+        # Solana wallets because this application was Solana-only at creation.
+        result.setdefault("chain", "solana")
+        result.setdefault("network", "mainnet-beta")
+        result.setdefault("network_id", "solana-mainnet-beta")
+        return result

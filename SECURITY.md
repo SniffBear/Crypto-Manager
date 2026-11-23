@@ -25,7 +25,7 @@ Do not file public issues containing wallet information, API tokens, or exploita
 - The metadata sync envelope includes selected metadata only and is protected with Argon2id and AES-GCM. It excludes private keys and vault secrets.
 - Backup SHA-256 verification detects file changes relative to the saved manifest; it does not prove that the vault password or seed phrases can restore funds. Test recovery in a separate data directory.
 - Risk scores and security alerts are heuristic review aids, not fraud guarantees.
-- Only current Solana sync and execution paths have chain-native integration. Explorer templates and address book entries for other networks do not imply native wallet support.
+- Solana remains the only network with native key generation/import and transaction construction. Additional EVM, UTXO, Ergo, Kaspa, Monero and Zano adapters are read-only/watch-only and have network-specific limitations in FEATURE_STATUS.md. Their presence does not imply signing, sending or production custody support.
 - Hardware-wallet integration is intentionally excluded.
 
 ## Before enabling live execution

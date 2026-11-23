@@ -177,9 +177,13 @@ def test_recovery_checklist_and_network_matrix_are_explicit(tmp_path):
     checklist = suite.recovery_checklist()
     assert checklist["restore_tested_by_application"] is False
     matrix = {row["network"]: row for row in suite.network_capabilities()}
-    assert matrix["solana"]["wallet_read"] == "LIVE"
-    for network in ("bitcoin", "litecoin", "dogecoin", "monero", "zano", "ethereum-classic", "ravencoin", "ergo", "kaspa"):
-        assert matrix[network]["wallet_read"] == "NOT_IMPLEMENTED"
+    assert matrix["solana-mainnet-beta"]["wallet_read"] == "LIVE"
+    assert matrix["ethereum-mainnet"]["wallet_read"] == "READ_ONLY_PARTIAL"
+    assert matrix["bitcoin-mainnet"]["wallet_read"] == "READ_ONLY_PARTIAL"
+    assert matrix["monero-mainnet"]["wallet_read"] == "READ_ONLY_PARTIAL"
+    assert matrix["ethereum-mainnet"]["send"] == "DISABLED"
+    assert matrix["bitcoin-mainnet"]["swap"] == "NOT_IMPLEMENTED"
+    assert len(matrix) >= 25
 
 
 def test_exchange_history_and_csv_exports_are_read_only(tmp_path):

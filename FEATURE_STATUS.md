@@ -2,6 +2,8 @@
 
 Last reviewed: 2026-11-22
 
+Multi-chain wallet foundation is available on branch feat/multichain-wallet-foundation; these are partial read-only capabilities, not production custody support.
+
 This document distinguishes working local features from integrations that still require chain-specific code, infrastructure, or provider credentials. A feature marked partial must not be interpreted as production-grade support for moving funds.
 
 ## Implemented in this branch
@@ -35,20 +37,22 @@ This document distinguishes working local features from integrations that still 
 
 ## Native network support matrix
 
-| Network | Read/balance | Send/sign | Reconciliation | Swap |
-|---|---|---|---|---|
-| Solana (SOL and supported tokens) | Implemented via existing sync providers | Transaction construction/simulation implemented; live broadcast is disabled by default and gated by configuration | Implemented through the current Solana sync adapter | Jupiter integration only when configured |
-| Bitcoin (BTC) | Not implemented | Not implemented | Not implemented | Not implemented |
-| Litecoin (LTC) | Not implemented | Not implemented | Not implemented | Not implemented |
-| Dogecoin (DOGE) | Not implemented | Not implemented | Not implemented | Not implemented |
-| Monero (XMR) | Not implemented | Not implemented | Not implemented | Not implemented |
-| Zano (ZANO) | Not implemented | Not implemented | Not implemented | Not implemented |
-| Ethereum Classic (ETC) | Not implemented | Not implemented | Not implemented | Not implemented |
-| Ravencoin (RVN) | Not implemented | Not implemented | Not implemented | Not implemented |
-| Ergo (ERG) | Not implemented | Not implemented | Not implemented | Not implemented |
-| Kaspa (KAS) | Not implemented | Not implemented | Not implemented | Not implemented |
+## Native network support matrix
 
-A non-Solana address-book record or explorer link does not mean a native wallet adapter exists. Do not deposit funds to an address expecting Nexus to monitor or manage that network until its adapter appears as implemented and passes network-specific integration tests.
+| Network / family | Address / wallet | Read / balance | Activity | Send / sign | Reconciliation / swap |
+|---|---|---|---|---|---|
+| Solana mainnet/devnet/testnet | Existing native wallet generation, secret import and watch-only import | Existing Solana RPC sync | Existing Helius/RPC activity path | Existing Solana-only transaction construction/simulation; live broadcast remains disabled by default | Existing Solana reconciliation; Jupiter remains Solana-specific |
+| Ethereum, Sepolia, Ethereum Classic/Mordor, Base, Arbitrum, Optimism, Polygon and BNB Chain | EVM address validation and watch-only import | Read-only native balance via JSON-RPC; chain ID checked against selected network | Not implemented | Disabled | No transaction history indexer or cross-chain swap |
+| Bitcoin mainnet/testnet | Base58Check and Bech32 validation; watch-only import | Read-only balance via Esplora | First-page activity via Esplora | Disabled | No signing, UTXO construction or swap |
+| Litecoin, Dogecoin and Ravencoin | Network-specific Base58Check/Bech32 checks; watch-only import | Read-only balance via user-configured Blockbook | First-page activity if supplied by Blockbook | Disabled | No signing, UTXO construction or swap |
+| Ergo mainnet/testnet | Address checksum/network validation; watch-only import | Read-only balance via configured Ergo node/indexer API | Not implemented | Disabled | No signing or swap |
+| Kaspa mainnet/testnet-10 | Bech32/HRP validation; watch-only import | Read-only balance via Kaspa REST | Not implemented | Disabled | No signing or swap |
+| Monero mainnet/testnet/stagenet | CryptoNote Base58, prefix and Keccak checksum validation; watch-only registration linked to an already-open local view-only wallet RPC | Balance via local Monero wallet RPC after verifying loaded wallet address | Read-only transfer listing via wallet RPC | Disabled | No public-address balance lookup, key generation/import or signing |
+| Zano mainnet/testnet | Syntax-only prefix check; authoritative address matching via local Zano wallet RPC | Read-only balance via local Zano wallet RPC after address matching | Not implemented | Disabled | No key generation/import, signing or swap |
+
+**Capability boundary:** non-Solana support is watch-only and read-only. The EVM adapter reads native balances; ERC-20 balances are only queried for contract addresses explicitly present in a wallet record, and automatic token discovery is not implemented. UTXO activity is limited to provider-returned pages. Ergo/Kaspa history indexing is not implemented. Monero and Zano require a locally running native wallet RPC and cannot derive balances from a public address alone. Zano syntax checks are not cryptographic validation; the local wallet RPC performs the authoritative match.
+
+Do not deposit funds to a non-Solana wallet unless you have independently verified the address, recovery material and native wallet workflow. This branch does not provide non-Solana key generation, signing or sending.
 
 ## Explicit exclusions and non-automated behavior
 
@@ -60,11 +64,12 @@ A non-Solana address-book record or explorer link does not mean a native wallet 
 - No automatic tax filing, jurisdiction-specific tax classification or complete historical chain import is claimed.
 - Encrypted metadata sync is manual; no cloud relay is configured.
 
-## Validation run for this branch
+## Validation status for multi-chain branch
 
-- Backend: `python -m pytest -q` — 40 passed.
-- Backend bytecode compilation: `python -m compileall -q backend` — passed.
-- Frontend source tests: `npm test` — 6 passed.
-- Frontend typecheck/lint: not verified in this environment because `node_modules`/Expo packages are not installed. Run `npm ci`, then `npm run typecheck` and `npm run lint` before release.
+- The starting commit's reported baseline was 40 backend tests and 6 frontend source tests; that result predates this multi-chain implementation.
+- New chain registry, address-validation, EVM adapter, Esplora adapter and capability-matrix tests have been added.
+- Local execution of the updated backend and Expo suites has not been performed in the current implementation environment.
+- GitHub Actions was triggered for the draft PR, but the available runs failed before executing any job steps (zero reported steps). Treat this as an unverified CI/runner failure, not as a passing build and not as a confirmed source-code failure.
+- Run `pip install -r Backend/requirements-dev.txt && pytest -q && python -m compileall -q backend` from `Backend/`, and `npm ci && npm run typecheck && npm run lint && npm test` from `Frontend/` before merging.
 
-This is an implementation/development baseline, not a security audit or production custody certification.
+This branch is an implementation/development baseline, not a security audit or production custody certification.

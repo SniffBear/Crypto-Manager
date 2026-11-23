@@ -26,6 +26,8 @@ class ImportWatch(BaseModel):
     address: str
     label: str
     group: str | None = None
+    chain: str = "solana"
+    network: str = "mainnet-beta"
 
 
 class ExportSecretRequest(BaseModel):
